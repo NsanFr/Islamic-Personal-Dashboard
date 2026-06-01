@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatir's Peak Dashboard</title>
+    <meta name="description"
+        content="Aesthetic personal dashboard with Glassmorphism style for your daily productivity.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body,
+        button,
+        input,
+        textarea,
+        select {
+            font-family: 'Roboto', sans-serif !important;
+        }
+
+        .prayer-times-section {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 2.5rem;
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .prayer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+
+        .prayer-upcoming-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .upcoming-label-box {
+            font-size: 0.7rem;
+            line-height: 1.2;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--accent-color);
+        }
+
+        .upcoming-timer-val {
+            font-family: monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            background: rgba(0, 240, 255, 0.1);
+            padding: 2px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+
+        .prayer-date-hijri {
+            color: var(--accent-color, #00f0ff);
+            opacity: 0.9;
+        }
+
+        .prayer-grid {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .prayer-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 70px;
+            flex: 1;
+            padding: 10px 5px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.4s ease;
+        }
+
+        .prayer-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            opacity: 0.6;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .prayer-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-color, #fff);
+        }
+
+        .clock-blink {
+            animation: clock-alert 1s ease-in-out infinite;
+        }
+
+        @keyframes clock-alert {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.05);
+                color: #ff007f;
+            }
+        }
+
+        .prayer-countdown {
+            display: block;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: var(--accent-color, #00f0ff);
+            margin-top: 2px;
+        }
+
+        .prayer-upcoming {
+            border-color: var(--accent-color, #00f0ff);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4), inset 0 0 5px rgba(0, 240, 255, 0.2);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .prayer-current {
+            border-color: #ff007f;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.6), inset 0 0 10px rgba(255, 0, 127, 0.3);
+            background: rgba(255, 0, 127, 0.1);
+            animation: prayer-blink 1s ease-in-out infinite;
+        }
+
+        .clock-side {
+            flex-shrink: 0;
+            padding-right: 2.5rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prayer-side {
+            flex: 1;
+        }
+
+        @keyframes prayer-blink {
+
+            0%,
+            100% {
+                opacity: 1;
+                filter: brightness(1.2);
+            }
+
+            50% {
+                opacity: 0.7;
+                filter: brightness(0.8);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .prayer-times-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .clock-side {
+                padding-right: 0;
+                padding-bottom: 1.5rem;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                width: 100%;
+            }
+
+            .prayer-upcoming-info {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body class="theme-cyberpunk bg-gradient-default">
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <div class="dashboard-container">
+
+        <section class="prayer-times-section glass-card" id="prayer-section">
+            <div class="clock-side">
+                <div class="clock-display">
+                    <span id="clock-time">08:00:00</span>
+                    <span class="clock-ampm" id="clock-ampm">AM</span>
+                </div>
+            </div>
+            <div class="prayer-side">
+                <div class="prayer-header">
+                    <div class="prayer-upcoming-info" id="upcoming-container" style="visibility: hidden;">
+                        <div class="upcoming-label-box">
+                            Upcoming<br><span id="upcoming-name">--</span>
+                        </div>
+                        <div id="upcoming-timer" class="upcoming-timer-val">00:00:00</div>
+                    </div>
+                    <div class="prayer-dates-wrapper">
+                        <span id="current-date">Thursday, May 22, 2026</span>
+                        <span class="prayer-date-divider">|</span>
+                        <span id="prayer-hijri-date" class="prayer-date-hijri">-- --- ---- H</span>
+                    </div>
+                </div>
+                <div class="prayer-grid">
+                    <div class="prayer-item">
+                        <span class="prayer-label" data-label="Subuh">Subuh</span>
+                        <span class="prayer-val" id="prayer-subuh">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-label" data-label="Terbit">Terbit</span>
+                        <span class="prayer-val" id="prayer-terbit">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-label" data-label="Dhuha">Dhuha</span>
+                        <span class="prayer-val" id="prayer-dhuha">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-label" data-label="Dhuhur">Dhuhur</span>
+                        <span class="prayer-val" id="prayer-dzuhur">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-label" data-label="Ashar">Ashar</span>
+                        <span class="prayer-val" id="prayer-ashar">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-label" data-label="Maghrib">Maghrib</span>
+                        <span class="prayer-val" id="prayer-maghrib">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-label" data-label="Isya">Isya</span>
+                        <span class="prayer-val" id="prayer-isya">--:--</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <main class="widgets-grid">
+
+            <section class="widget-column">
+
+                <div class="widget-card glass-card" id="calendar-widget">
+                    <div class="widget-header">
+                        <div class="widget-title-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="widget-icon text-accent">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <h2 class="widget-title">Calendar</h2>
+                        </div>
+                        <div class="calendar-nav">
+                            <button class="btn-icon" id="btn-prev-month" title="Previous Month">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                            </button>
+                            <span class="calendar-month-year" id="calendar-month-year">May 2026</span>
+                            <button class="btn-icon" id="btn-next-month" title="Next Month">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="calendar-hijri-month-info" id="calendar-hijri-month-info">Dhu al-Qi'dah - Dhu al-Hijjah
+                        1447 H</div>
+
+                    <div class="calendar-wrapper">
+                        <div class="calendar-weekdays">
+                            <div class="weekday text-red">Sun</div>
+                            <div class="weekday">Mon</div>
+                            <div class="weekday">Tue</div>
+                            <div class="weekday">Wed</div>
+                            <div class="weekday">Thu</div>
+                            <div class="weekday">Fri</div>
+                            <div class="weekday">Sat</div>
+                        </div>
+                        <div class="calendar-days" id="calendar-days-grid">
+                        </div>
+                    </div>
+
+                    <div class="selected-day-panel" id="selected-day-panel">
+                        <div class="selected-day-header">
+                            <h3 class="selected-day-title" id="selected-day-title">Choose a date on the calendar</h3>
+                            <span class="selected-day-hijri" id="selected-day-hijri"></span>
+                        </div>
+                        <div class="selected-day-content">
+                            <ul class="selected-day-tasks" id="selected-day-tasks"></ul>
+                            <form id="calendar-quick-add-form" class="calendar-quick-add-form hidden">
+                                <input type="text" id="calendar-quick-add-input" placeholder="New task for this date..."
+                                    required autocomplete="off">
+                                <button type="submit" class="btn-quick-add" title="Add Task">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <section class="widget-column">
+
+                <div class="widget-card glass-card" id="todo-widget">
+                    <div class="widget-header">
+                        <div class="widget-title-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="widget-icon text-accent">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <h2 class="widget-title">Task Manager</h2>
+                        </div>
+                        <span class="task-badge" id="task-counter">0 / 0</span>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="todo-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text" id="progress-percentage">0% completed</div>
+                    </div>
+
+                    <form id="todo-form" class="todo-form">
+                        <input type="text" id="todo-input" placeholder="Add a new task..." autocomplete="off" required>
+                        <input type="date" id="todo-date" class="todo-date-input" title="Deadline">
+                        <button type="submit" class="btn-add" aria-label="Add">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </form>
+
+                    <ul class="todo-list" id="todo-list">
+                    </ul>
+                </div>
+
+                <div class="widget-card glass-card" id="notes-widget">
+                    <div class="widget-header">
+                        <div class="widget-title-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="widget-icon text-accent">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <h2 class="widget-title">Quick Plan</h2>
+                        </div>
+                        <span class="notes-status" id="notes-status">Auto-saved</span>
+                    </div>
+                    <div class="notes-content-wrapper">
+                        <textarea id="notes-textarea" placeholder="Write your ideas or quick notes here..."
+                            class="notes-textarea"></textarea>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <footer class="control-panel">
+            <button class="btn-control glass-card" id="btn-toggle-config" aria-label="Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                <span>Customize</span>
+            </button>
+
+            <div class="config-drawer glass-card hidden" id="config-drawer">
+                <div class="config-section">
+                    <h3 class="config-heading">Color Theme</h3>
+                    <div class="theme-selector">
+                        <button class="theme-opt btn-theme-cyberpunk active" data-theme="cyberpunk"
+                            title="Synthwave Cyberpunk">
+                            <span class="color-dot"
+                                style="background: linear-gradient(135deg, #ff007f, #00f0ff);"></span>
+                            Cyberpunk
+                        </button>
+                        <button class="theme-opt btn-theme-emerald" data-theme="emerald" title="Emerald Forest">
+                            <span class="color-dot"
+                                style="background: linear-gradient(135deg, #10b981, #059669);"></span>
+                            Emerald
+                        </button>
+                        <button class="theme-opt btn-theme-cosmic" data-theme="cosmic" title="Cosmic Nebula">
+                            <span class="color-dot"
+                                style="background: linear-gradient(135deg, #8b5cf6, #3b82f6);"></span>
+                            Cosmic
+                        </button>
+                        <button class="theme-opt btn-theme-minimal" data-theme="minimal" title="Sleek Minimalist">
+                            <span class="color-dot"
+                                style="background: linear-gradient(135deg, #f3f4f6, #1f2937);"></span>
+                            Minimalist
+                        </button>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3 class="config-heading">Wallpaper</h3>
+                    <div class="bg-selector">
+                        <button class="bg-opt bg-opt-grad active" data-bg="gradient-default" title="Dynamic Gradient">
+                            <span class="bg-preview bg-preview-grad"></span>
+                            Gradient
+                        </button>
+                        <button class="bg-opt bg-opt-glassy" data-bg="gradient-deep" title="Deep Oceanic">
+                            <span class="bg-preview bg-preview-deep"></span>
+                            Oceanic
+                        </button>
+                        <button class="bg-opt bg-opt-dark" data-bg="solid-dark" title="Pure Dark Mode">
+                            <span class="bg-preview bg-preview-dark"></span>
+                            Pure Dark
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        let globalJadwal = null;
+        let nextPrayerInfo = null;
+
+        async function updatePrayerTimes() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+
+            try {
+                const response = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1638/${y}/${m}/${d}`);
+                const data = await response.json();
+
+                if (data.status && data.data.jadwal) {
+                    globalJadwal = data.data.jadwal;
+                    const j = data.data.jadwal;
+                    document.getElementById('prayer-subuh').innerText = j.subuh;
+                    document.getElementById('prayer-terbit').innerText = j.terbit;
+                    document.getElementById('prayer-dhuha').innerText = j.dhuha;
+                    document.getElementById('prayer-dzuhur').innerText = j.dzuhur;
+                    document.getElementById('prayer-ashar').innerText = j.ashar;
+                    document.getElementById('prayer-maghrib').innerText = j.maghrib;
+                    document.getElementById('prayer-isya').innerText = j.isya;
+
+                    checkPrayerAlert(j);
+                }
+            } catch (err) {
+                console.error('Gagal mengambil jadwal sholat:', err);
+            }
+        }
+
+        function checkPrayerAlert(jadwal) {
+            const now = new Date();
+            const current = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const clockContainer = document.querySelector('.clock-display');
+            const prayerKeys = ['subuh', 'terbit', 'dhuha', 'dzuhur', 'ashar', 'maghrib', 'isya'];
+
+            let nextKey = null;
+            let activeKey = null;
+
+            prayerKeys.forEach(key => {
+                const el = document.getElementById(`prayer-${key}`).parentElement;
+                el.classList.remove('prayer-upcoming', 'prayer-current');
+
+                if (el.querySelector('.prayer-countdown')) el.querySelector('.prayer-countdown').remove();
+
+                if (jadwal[key] === current) {
+                    activeKey = key;
+                }
+
+                if (jadwal[key] > current && !nextKey) {
+                    nextKey = key;
+                }
+            });
+
+            const isNextDay = !nextKey && !activeKey;
+            if (isNextDay) nextKey = 'subuh';
+
+            if (activeKey) {
+                document.getElementById(`prayer-${activeKey}`).parentElement.classList.add('prayer-current');
+                clockContainer.classList.add('clock-blink');
+                nextPrayerInfo = null;
+                document.getElementById('upcoming-container').style.visibility = 'hidden';
+            } else {
+                clockContainer.classList.remove('clock-blink');
+                if (nextKey) {
+                    document.getElementById('upcoming-container').style.visibility = 'visible';
+                    document.getElementById('upcoming-name').innerText = nextKey.charAt(0).toUpperCase() + nextKey.slice(1);
+
+                    const upcomingEl = document.getElementById(`prayer-${nextKey}`).parentElement;
+                    upcomingEl.classList.add('prayer-upcoming');
+
+                    nextPrayerInfo = { key: nextKey, time: jadwal[nextKey], isNextDay };
+                }
+            }
+        }
+
+        function updateTick() {
+            if (!nextPrayerInfo) return;
+
+            const now = new Date();
+            const [h, m] = nextPrayerInfo.time.split(':').map(Number);
+            const target = new Date(now);
+            target.setHours(h, m, 0, 0);
+            if (nextPrayerInfo.isNextDay) target.setDate(target.getDate() + 1);
+
+            const diff = target - now;
+            if (diff <= 0) {
+                updatePrayerTimes();
+                return;
+            }
+
+            const hours = Math.floor(diff / 3600000);
+            const mins = Math.floor((diff % 3600000) / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+
+            const timerEl = document.getElementById('upcoming-timer');
+            if (timerEl) timerEl.innerText = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        updatePrayerTimes();
+        setInterval(updatePrayerTimes, 30000);
+        setInterval(updateTick, 1000);
+    </script>
+</body>
+
+</html>

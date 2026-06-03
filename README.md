@@ -1,4 +1,4 @@
-***Islamic Personal Dashboard**
+**Islamic Personal Dashboard**
 
 Islamic Personal Dashboard adalah sebuah personal dashboard berbasis web yang dirancang dengan pendekatan minimalis dan fungsional. Berbeda dengan dashboard statis biasa, proyek ini sepenuhnya editable (dapat disesuaikan oleh pengguna secara langsung) dan dilengkapi dengan fitur produktivitas harian serta jadwal Sholat otomatis dan Kalender Hijriyah.
 
